@@ -67,15 +67,17 @@
       this.id = id;
       this.data = data;
       this.renderInMenu();
+      this.getElements();
+      this.initAccordion();
+      this.initOrderForm();
       this.initAccordion();
       console.log('new product: ', this);
     }
 
     initAccordion() {
       const thisProduct = this;
-      const clickable_trigger = thisProduct.element.querySelector(select.menuProduct.clickable);
 
-      clickable_trigger.addEventListener('click', function (event) {
+      thisProduct.accordionTrigger.addEventListener('click', function (event) {
         event.preventDefault();
         const active_product = document.querySelector(select.all.menuProductsActive);
 
@@ -86,18 +88,38 @@
       });
     }
 
+    initOrderForm() 
+    {
+      const thisProduct = this;
+    }
+
+    processOrder()
+    {
+      const thisProduct = this;
+    }
+
     renderInMenu() {
-      const generated_html = templates.menuProduct(this.data);
-      this.element = utils.createDOMFromHTML(generated_html);
-      const menu_container = document.querySelector(select.containerOf.menu);
-      menu_container.appendChild(this.element);
+      const generatedHtml = templates.menuProduct(this.data);
+      this.element = utils.createDOMFromHTML(generatedHtml);
+      const menuContainer = document.querySelector(select.containerOf.menu);
+      menuContainer.appendChild(this.element);
+    }
+
+    getElements() {
+      const thisProduct = this;
+    
+      thisProduct.accordionTrigger = thisProduct.element.querySelector(select.menuProduct.clickable);
+      thisProduct.form = thisProduct.element.querySelector(select.menuProduct.form);
+      thisProduct.formInputs = thisProduct.form.querySelectorAll(select.all.formInputs);
+      thisProduct.cartButton = thisProduct.element.querySelector(select.menuProduct.cartButton);
+      thisProduct.priceElem = thisProduct.element.querySelector(select.menuProduct.priceElem);
     }
   }
 
   const app = {
     initMenu: function () {
-      const p = new Product();
-      console.log("Test p: ", p);
+      const product = new Product();
+      console.log("Test p: ", product);
       console.log('dat: ', this.data);
 
       for (let p in this.data.products) {
