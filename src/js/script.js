@@ -70,8 +70,7 @@
       this.getElements();
       this.initAccordion();
       this.initOrderForm();
-      this.initAccordion();
-      console.log('new product: ', this);
+      this.processOrder();
     }
 
     initAccordion() {
@@ -79,10 +78,10 @@
 
       thisProduct.accordionTrigger.addEventListener('click', function (event) {
         event.preventDefault();
-        const active_product = document.querySelector(select.all.menuProductsActive);
+        const activeProduct = document.querySelector(select.all.menuProductsActive);
 
-        if (active_product != thisProduct.element && active_product !== null) {
-          active_product.classList.remove(classNames.menuProduct.wrapperActive);
+        if (activeProduct != thisProduct.element && activeProduct !== null) {
+          activeProduct.classList.remove(classNames.menuProduct.wrapperActive);
         }
         thisProduct.element.classList.toggle(classNames.menuProduct.wrapperActive);
       });
@@ -91,11 +90,60 @@
     initOrderForm() 
     {
       const thisProduct = this;
+      thisProduct.form.addEventListener('submit', function(event){
+        event.preventDefault();
+        thisProduct.processOrder();
+      });
+      
+      for(let input of thisProduct.formInputs){
+        input.addEventListener('change', function(){
+          thisProduct.processOrder();
+        });
+      }
+      
+      thisProduct.cartButton.addEventListener('click', function(event){
+        event.preventDefault();
+        thisProduct.processOrder();
+      });
     }
 
     processOrder()
     {
       const thisProduct = this;
+    
+      // covert form to object structure e.g. { sauce: ['tomato'], toppings: ['olives', 'redPeppers']}
+      const formData = utils.serializeFormToObject(thisProduct.form);
+    
+      // set price to default price
+      let price = thisProduct.data.price;
+    
+      for(let paramId in thisProduct.data.params) {
+        const param = thisProduct.data.params[paramId];
+    
+        // for every option in this category
+        for(let optionId in param.options) 
+        {
+          const option = param.options[optionId];
+          const optionSelected = formData[paramId] && formData[paramId].includes(optionId);
+
+          if(optionSelected)
+          {
+            if(!option.default)
+            {
+              price += option.price;
+            }
+          }
+          else
+          {
+            if(option.default)
+            {
+              price -= option.price;
+            }
+          }
+        }
+      }
+
+      thisProduct.priceElem.innerHTML = price;
     }
 
     renderInMenu() {
@@ -117,13 +165,12 @@
   }
 
   const app = {
-    initMenu: function () {
-      const product = new Product();
-      console.log("Test p: ", product);
-      console.log('dat: ', this.data);
-
-      for (let p in this.data.products) {
-        new Product(p, this.data.products[p]);
+    initMenu: function ()
+    {
+      const thisApp = this;
+      for(let p in thisApp.data.products)
+      {
+        new Product(thisApp.data.products[p].id, thisApp.data.products[p]);
       }
     },
 
@@ -133,11 +180,11 @@
 
     init: function () {
       const thisApp = this;
-      console.log('*** App starting ***');
-      console.log('thisApp:', thisApp);
-      console.log('classNames:', classNames);
-      console.log('settings:', settings);
-      console.log('templates:', templates);
+      //console.log('*** App starting ***');
+      //console.log('thisApp:', thisApp);
+      //console.log('classNames:', classNames);
+      //console.log('settings:', settings);
+      //console.log('templates:', templates);
       thisApp.initData();
       thisApp.initMenu();
     },
